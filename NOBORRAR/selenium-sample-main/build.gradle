@@ -1,0 +1,32 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+buildscript {
+    repositories {
+        maven {
+            name = "sw-artifactory-maven-virtual"
+            url 'https://artifactory.sherwin.com/artifactory/maven-virtual'
+        }
+    }
+}
+
+repositories {
+    add buildscript.repositories.getByName("sw-artifactory-maven-virtual")
+}
+
+dependencies {
+    // Selenium
+    implementation 'org.seleniumhq.selenium:selenium-java:4.5.0'
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.5.0'
+
+    // TestNG
+    testImplementation 'org.testng:testng:7.6.1'
+}
+
+test {
+    systemProperties(System.getProperties())
+    useTestNG() {
+        dependsOn cleanTest
+        useDefaultListeners = true
+    }
+}

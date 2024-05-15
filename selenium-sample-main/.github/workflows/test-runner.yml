@@ -1,0 +1,39 @@
+# This workflow executes a Java Selenium Test.
+# This workflow mainly focuses on kicking off the test, so if you want to see how the Selenium Grid connection works,
+#     you'll want to go to the src/test/java/tests/BaseSeleniumTest.java file.
+
+name: test-runner
+
+# Currently, this Action can only be manually kicked off,
+#   but this can be changed to be triggered off certain GitHub events.
+on:
+  workflow_dispatch
+      
+jobs:
+  build-test:
+    # runs-on: sw-ubuntu-latest
+    runs-on: sw-ubuntu-k8s
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: 11
+    
+    # Trigger the gradle 'test' task with the parameter '-Dgrid'.
+    - name: Run the Selenium tests on the Selenium Grid
+      uses: gradle/gradle-build-action@v2.6.0
+      with:
+        arguments: test -Dgrid
+
+    - name: Build the Test Report
+      if: success() || failure()
+      uses: dorny/test-reporter@v1
+      with:
+        name: Test Results
+        # Even though we are using TestNG, we can output JUnit-style reports.
+        path: '**/junitreports/*.xml'
+        reporter: java-junit
+      
